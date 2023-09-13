@@ -9,7 +9,7 @@ import shutil
 from typing import Tuple
 
 import torch.nn as nn
-
+from timeit import default_timer as timer
 from models.interfaces import BaseModel
 from models.model_utils import interpolate_tensor
 
@@ -40,8 +40,19 @@ class SeldModel(BaseModel):
         """
         x: (batch_size, n_channels, n_timesteps (n_frames), n_features).
         """
+        enc_start = timer()
         x = self.encoder(x)  # (batch_size, n_channels, n_timesteps, n_features)
+        enc_end = timer() - enc_start
+        
+        dec_start = timer()
         output_dict = self.decoder(x)
+        dec_end = timer() - dec_start
+        
+        with open("../experiments/outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'a+') as f:
+            f.write("Encoding Time : {:.4f}\n".format(enc_end))
+            f.write("Decoding Time : {:.4f}".format(dec_end))
+            f.close()
+            
         # output_dict = {
         #     'event_frame_logit': event_frame_logit, # (batch_size, n_timesteps, n_classes)
         #     'doa_frame_output': doa_output, # (batch_size, n_timesteps, 3* n_classes)
