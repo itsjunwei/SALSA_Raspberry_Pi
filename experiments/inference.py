@@ -17,7 +17,7 @@ import torch
 import sys
 
 from evaluate import evaluate_seld
-sys.path.insert(0, r'G:\SALSA_RaspberryPi\utilities')
+sys.path.insert(0, "../utilities")
 from builder_utils import build_database, build_datamodule, build_model, build_task
 from experiments_utils import manage_experiments
 from learning_utils import MyLoggingCallback
@@ -140,7 +140,7 @@ def inference(exp_config: str = './configs/seld_salsa_lite.yml',
                   is_eval_split=inference_split=='eval')
     evaluate_metrics = timer() - start_time
 
-    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/timelog.txt", 'w') as f:
+    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'w') as f:
         f.write("Building Feature Database  : {:.3f}s\n".format(build_feature_database_time))
         f.write("Load Data Module           : {:.3f}s\n".format(load_datamodule))
         f.write("Building Encoder/Decoder   : {:.3f}s\n".format(build_coders))

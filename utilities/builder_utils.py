@@ -8,9 +8,9 @@ import pytorch_lightning as pl
 import torch.nn as nn
 
 import sys
-sys.path.insert(0, r'G:\SALSA_RaspberryPi')
+sys.path.insert(0, "../models")
 import models
-sys.path.insert(0, r'G:\SALSA_RaspberryPi\dataset')
+sys.path.insert(0, "../dataset")
 import dataset
 
 

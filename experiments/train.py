@@ -12,7 +12,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 
 import sys
-sys.path.insert(0, r'G:\SALSA_RaspberryPi\utilities')
+sys.path.insert(0, "../utilities")
 from builder_utils import build_database, build_datamodule, build_model, build_task
 from experiments_utils import manage_experiments
 from learning_utils import LearningRateScheduler, MyLoggingCallback

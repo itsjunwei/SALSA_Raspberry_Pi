@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 import sys
-sys.path.insert(0, r'G:\SALSA_RaspberryPi\metrics')
+sys.path.insert(0, "../metrics")
 import dcase_utils, SELD2020_evaluation_metrics, SELD2021_evaluation_metrics
 
 
