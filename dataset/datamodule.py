@@ -146,11 +146,11 @@ class SeldDataModule(pl.LightningDataModule):
                           batch_size=self.val_batch_size,
                           shuffle=False,
                           pin_memory=True,
-                          num_workers=0)
+                          num_workers=4)
 
     def test_dataloader(self):
         return DataLoader(dataset=self.test_dataset,
                           batch_size=self.test_batch_size,
                           shuffle=False,
                           pin_memory=True,
-                          num_workers=0)
+                          num_workers=4)
