@@ -50,7 +50,7 @@ class SeldModel(BaseModel):
         
         with open("../experiments/outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'a+') as f:
             f.write("Encoding Time : {:.4f}\n".format(enc_end))
-            f.write("Decoding Time : {:.4f}".format(dec_end))
+            f.write("Decoding Time : {:.4f}\n".format(dec_end))
             f.close()
             
         # output_dict = {

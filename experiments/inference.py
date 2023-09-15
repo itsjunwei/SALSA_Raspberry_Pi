@@ -12,6 +12,7 @@ import logging
 import os
 import re
 from timeit import default_timer as timer
+from datetime import datetime 
 import pytorch_lightning as pl
 import torch
 import sys
@@ -41,6 +42,8 @@ def inference(exp_config: str = './configs/seld_salsa_lite.yml',
     :param inference_split: split to do inference if stage = 'inference'
     :param submission_tag: tag name to submission file.
     """
+    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'w') as f:
+        f.write("Time log for : {}\n".format((datetime.now()).strftime("%d/%m/%Y %H:%M:%S")))
     # Load config, create folders, logging
     cfg = manage_experiments(exp_config=exp_config, exp_group_dir=exp_group_dir, exp_suffix=exp_suffix, is_train=False)
     logger = logging.getLogger('lightning')
@@ -140,7 +143,7 @@ def inference(exp_config: str = './configs/seld_salsa_lite.yml',
                   is_eval_split=inference_split=='eval')
     evaluate_metrics = timer() - start_time
 
-    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'w') as f:
+    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'a') as f:
         f.write("Building Feature Database  : {:.3f}s\n".format(build_feature_database_time))
         f.write("Load Data Module           : {:.3f}s\n".format(load_datamodule))
         f.write("Building Encoder/Decoder   : {:.3f}s\n".format(build_coders))
