@@ -153,6 +153,23 @@ def inference(exp_config: str = './configs/seld_salsa_lite.yml',
         f.write("Evaluating Output Files    : {:.3f}s".format(evaluate_metrics))
         f.close()
 
+    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'r') as f:
+        total_encoding_time = 0
+        total_decoding_time = 0
+        for idx, line in enumerate(f.readlines()[1:201]):
+            x = line.split(": ")
+            x = float(x[-1])
+            if idx%2 == 0 :
+                total_encoding_time += x
+            else:
+                total_decoding_time += x 
+        print(total_encoding_time/100)
+        print(total_decoding_time/100)
+    with open("./outputs/crossval/mic/salsa/seld_salsa_lite_test/logs/rpitimelog.txt", 'r') as f:
+        lines = f.readlines()
+        for line in lines[201:]:
+            print(line)
+
 def inference_all_splits(exp_config: str = './configs/seld_salsa_lite.yml',
                          exp_group_dir: str = './outputs',
                          exp_suffix: str = '_test',
