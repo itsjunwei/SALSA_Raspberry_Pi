@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.model_utils import ConvBlock, _ResNet, _ResnetBasicBlock
+from models.model_utils import ConvBlock, _ResNet, _ResnetBasicBlock, _ResnetBottleneck, _ResnetDSCBlock
 
 
 class BaseEncoder(nn.Module):
@@ -40,7 +40,7 @@ class PannResNet22(BaseEncoder):
 
         self.conv_block1 = ConvBlock(in_channels=n_input_channels, out_channels=64)
 
-        self.resnet = _ResNet(block=_ResnetBasicBlock, layers=[2, 2, 2, 2], zero_init_residual=True)
+        self.resnet = _ResNet(block=_ResnetBottleneck, layers=[2, 2, 2, 2], zero_init_residual=True)
 
     def forward(self, x):
         """

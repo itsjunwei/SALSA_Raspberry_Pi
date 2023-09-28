@@ -316,6 +316,64 @@ def _resnet_conv1x1(in_planes, out_planes):
     # 1x1 convolution
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1, bias=False)
 
+class _ResnetDSCBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
+                 base_width=64, dilation=1, norm_layer=None):
+        super(_ResnetDSCBlock, self).__init__()
+        if norm_layer is None:
+            norm_layer = nn.BatchNorm2d
+        if groups != 1 or base_width != 64:
+            raise ValueError('_ResnetBasicBlock only supports groups=1 and base_width=64')
+        if dilation > 1:
+            raise NotImplementedError("Dilation > 1 not supported in _ResnetBasicBlock")
+        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
+
+        self.stride = stride
+
+        self.conv1 = _resnet_conv3x3_depthwise_separable(inplanes, planes)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = _resnet_conv3x3_depthwise_separable(planes, planes)
+        self.bn2 = norm_layer(planes)
+        self.downsample = downsample
+        self.stride = stride
+
+        self.init_weights()
+
+    def init_weights(self):
+        init_layer(self.conv1[0])
+        init_layer(self.conv1[1])
+        init_bn(self.bn1)
+        init_layer(self.conv2[0])
+        init_layer(self.conv2[1])
+        init_bn(self.bn2)
+        nn.init.constant_(self.bn2.weight, 0)
+
+    def forward(self, x):
+        identity = x
+
+        if self.stride == 2:
+            out = F.avg_pool2d(x, kernel_size=(2, 2))
+        else:
+            out = x
+
+        out = self.conv1(out)
+        out = self.bn1(out)
+        out = self.relu(out)
+        out = F.dropout(out, p=0.1, training=self.training)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(identity)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
 
 class _ResnetBasicBlock(nn.Module):
     expansion = 1
@@ -377,7 +435,7 @@ class _ResnetBasicBlock(nn.Module):
 
 class _ResnetBottleneck(nn.Module):
     expansion = 1
-    is_DSC = False
+    is_DSC = True
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
                  base_width=64, dilation=1, norm_layer=None):
         super(_ResnetBottleneck, self).__init__()
