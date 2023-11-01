@@ -435,7 +435,7 @@ class _ResnetBasicBlock(nn.Module):
 
 class _ResnetBottleneck(nn.Module):
     expansion = 1
-    is_DSC = True
+    is_DSC = False
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
                  base_width=64, dilation=1, norm_layer=None):
         super(_ResnetBottleneck, self).__init__()

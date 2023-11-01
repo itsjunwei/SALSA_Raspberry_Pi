@@ -25,7 +25,7 @@ class SeldDecoder(nn.Module):
 
         logger = logging.getLogger('lightning')
         logger.info('Map decoder type: {}'.format(self.decoder_type))
-        assert self.decoder_type in ['gru', 'bigru'], \
+        assert self.decoder_type in ['gru', 'bigru', 'lstm', 'bilstm', 'transformer'], \
             'Invalid decoder type {}'.format(self.decoder_type)
 
         if self.decoder_type == 'gru':
@@ -47,30 +47,30 @@ class SeldDecoder(nn.Module):
 
         # BIGRU should be used in the model
 
-        # elif self.decoder_type == 'lstm':
-        #     self.lstm_input_size = n_output_channels
-        #     self.lstm_size = decoder_size
-        #     self.fc_size = self.lstm_size
+        elif self.decoder_type == 'lstm':
+            self.lstm_input_size = n_output_channels
+            self.lstm_size = decoder_size
+            self.fc_size = self.lstm_size
 
-        #     self.lstm = nn.LSTM(input_size=self.lstm_input_size, hidden_size=self.lstm_size,
-        #                         num_layers=2, batch_first=True, bidirectional=False, dropout=0.3)
-        #     init_gru(self.lstm)
-        # elif self.decoder_type == 'bilstm':
-        #     self.lstm_input_size = n_output_channels
-        #     self.lstm_size = decoder_size
-        #     self.fc_size = self.lstm_size * 2
+            self.lstm = nn.LSTM(input_size=self.lstm_input_size, hidden_size=self.lstm_size,
+                                num_layers=2, batch_first=True, bidirectional=False, dropout=0.3)
+            init_gru(self.lstm)
+        elif self.decoder_type == 'bilstm':
+            self.lstm_input_size = n_output_channels
+            self.lstm_size = decoder_size
+            self.fc_size = self.lstm_size * 2
 
-        #     self.lstm = nn.LSTM(input_size=self.lstm_input_size, hidden_size=self.lstm_size,
-        #                        num_layers=2, batch_first=True, bidirectional=True, dropout=0.3)
-        #     init_gru(self.lstm)
-        # elif self.decoder_type == 'transformer':
-        #     dim_feedforward = 1024
-        #     self.decoder_input_size = n_output_channels
-        #     self.fc_size = self.decoder_input_size
-        #     self.pe = PositionalEncoding(pos_len=2000, d_model=self.decoder_input_size, dropout=0.0)
-        #     encoder_layer = nn.TransformerEncoderLayer(d_model=self.decoder_input_size,
-        #                                                dim_feedforward=dim_feedforward, nhead=8, dropout=0.2)
-        #     self.decoder_layer = nn.TransformerEncoder(encoder_layer, num_layers=2)
+            self.lstm = nn.LSTM(input_size=self.lstm_input_size, hidden_size=self.lstm_size,
+                               num_layers=2, batch_first=True, bidirectional=True, dropout=0.3)
+            init_gru(self.lstm)
+        elif self.decoder_type == 'transformer':
+            dim_feedforward = 1024
+            self.decoder_input_size = n_output_channels
+            self.fc_size = self.decoder_input_size
+            self.pe = PositionalEncoding(pos_len=2000, d_model=self.decoder_input_size, dropout=0.0)
+            encoder_layer = nn.TransformerEncoderLayer(d_model=self.decoder_input_size,
+                                                       dim_feedforward=dim_feedforward, nhead=8, dropout=0.2)
+            self.decoder_layer = nn.TransformerEncoder(encoder_layer, num_layers=2)
         else:
             raise NotImplementedError('decoder type: {} is not implemented'.format(self.decoder_type))
 
@@ -127,14 +127,14 @@ class SeldDecoder(nn.Module):
 
         if self.decoder_type in ['gru', 'bigru']:
             x, _ = self.gru(x)
-        # elif self.decoder_type in ['lstm', 'bilstm']:
-        #     x, _ = self.lstm(x)
-        # elif self.decoder_type == 'transformer':
-        #     x = x.transpose(1, 2)  # undo swap: batch size,  n_features, n_timesteps,
-        #     x = self.pe(x)  # batch_size, n_channels/n features, n_timesteps
-        #     x = x.permute(2, 0, 1)  # T (n_timesteps), N (batch_size), C (n_features)
-        #     x = self.decoder_layer(x)
-        #     x = x.permute(1, 0, 2)  # batch_size, n_timesteps, n_features
+        elif self.decoder_type in ['lstm', 'bilstm']:
+            x, _ = self.lstm(x)
+        elif self.decoder_type == 'transformer':
+            x = x.transpose(1, 2)  # undo swap: batch size,  n_features, n_timesteps,
+            x = self.pe(x)  # batch_size, n_channels/n features, n_timesteps
+            x = x.permute(2, 0, 1)  # T (n_timesteps), N (batch_size), C (n_features)
+            x = self.decoder_layer(x)
+            x = x.permute(1, 0, 2)  # batch_size, n_timesteps, n_features
 
         # SED: multi-label multi-class classification, without sigmoid
         event_frame_logit = F.relu_(self.event_fc_1(self.event_dropout_1(x)))  # (batch_size, time_steps, n_classes)

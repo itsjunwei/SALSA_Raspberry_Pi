@@ -10,7 +10,8 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-
+import sys
+sys.path.insert(0, "../metrics/")
 from metrics import dcase_utils
 from metrics import SELD2020_evaluation_metrics, SELD2021_evaluation_metrics
 
